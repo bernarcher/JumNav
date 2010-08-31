@@ -1,0 +1,83 @@
+--- jumanji.c	2010-08-28 19:28:54.000000000 +0000
++++ jumanji.c.new	2010-08-28 19:16:02.000000000 +0000
+@@ -1838,20 +1835,74 @@
+     else
+       cmd = g_strdup("focus_next()");
+   }
+-  else if(Jumanji.Global.buffer && Jumanji.Global.buffer->len > 0)
+-    cmd = g_strconcat("update_hints(\"", Jumanji.Global.buffer->str, "\")", NULL);
++  else if(Jumanji.Global.buffer)
++  {
++    if(Jumanji.Global.buffer->len > 0)
++    {
++      cmd = g_strconcat("update_hints(\"", Jumanji.Global.buffer->str, "\")", NULL);
++    }
++    else if(Jumanji.Global.buffer->len == 0)
++    {
++      /* probably not needed actually (see below), just for being sure */
++      cmd = g_strconcat("update_hints(\"", "", "\")", NULL);
++    }
++  }
++  else
++  {
++    /* jumanji removes the buffer if it gets cleared on a delete operation
++     * (hopefully there are no nasty side effects) */
++    cmd = g_strconcat("update_hints(\"", "", "\")", NULL);
++  }
+ 
+   run_script(cmd, &value, NULL);
+   g_free(cmd);
+ 
+   if(value && strcmp(value, "undefined"))
+   {
+-    if(open_mode == -1)
+-      open_uri(GET_CURRENT_TAB(), value);
++    /* value = "\\abcd"; / * debug */
++
++    /* Was there a buffer reset special command returned? */
++    if(value[0] == '\\')
++    {
++      if (Jumanji.Global.buffer)
++      {
++	if(strlen(value) == 1) {
++          /* Only clear the global buffer. */
++          g_string_free(Jumanji.Global.buffer, TRUE);
++          Jumanji.Global.buffer = NULL;
++          gtk_label_set_markup((GtkLabel*) Jumanji.Statusbar.buffer, "");
++	}
++	else if(strlen(value) == 2 && value[1] == '\\')
++        {
++          /* Clear the global buffer and reset to normal mode. */
++          g_string_free(Jumanji.Global.buffer, TRUE);
++          Jumanji.Global.buffer = NULL;
++          gtk_label_set_markup((GtkLabel*) Jumanji.Statusbar.buffer, "");
++
++          change_mode(NORMAL);
++          gtk_widget_hide(GTK_WIDGET(Jumanji.UI.inputbar));
++          webkit_web_view_unmark_text_matches(GET_CURRENT_TAB());
++        }
++        else
++        {
++          /* Change the buffer contents. */
++	  GString* temp = g_string_new_len(value + 1, strlen(value + 1));
++	  g_string_free(Jumanji.Global.buffer, TRUE);
++	  Jumanji.Global.buffer = temp;
++	  gtk_label_set_markup((GtkLabel*) Jumanji.Statusbar.buffer, Jumanji.Global.buffer->str);
++        }
++      }
++    }
+     else
+-      create_tab(value, TRUE);
++    {
++      /* There has been an address returned. Go there. */
++      if(open_mode == -1)
++	open_uri(GET_CURRENT_TAB(), value);
++      else
++	create_tab(value, TRUE);
+ 
+-    sc_abort(NULL);
++      sc_abort(NULL);
++    }
+   }
+ }
+ 
