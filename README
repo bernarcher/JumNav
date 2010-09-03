@@ -1,0 +1,91 @@
+JumNav
+======
+JumNav is a script to accomplish vimperator-like keyboard driven navigation with
+the jumanji webkit browser (http://pwmt.org/projects/jumanji).
+
+Prerequisites
+-------------
+This script was written for jumanji-git later than 2010-08-01
+(to laod use: "git clone git://pwmt.org/jumanji.git")
+
+JumNav must be able to communicate with the jumanji global input. To accomplish
+this the jumanji.c file in the repositori needs to be pattched with the
+accompanying jumnav.diff file:
+
+	patch < <path-to-this jumnav-directory>/jumnav.diff
+
+A short feature summary
+-----------------------
+- directly select a link from hinting labels
+- interactive "navigation mode" allows selecting nodes back and forth in
+  hierarchy
+- hinting and navigation mode can be toggled and thus used in conjunction
+- "word matching" sub-mode of navigation mode allows to select labels matching
+  some given pattern
+- word matching and plain navigation modes can be toggled and thus used in
+  conjunction
+- the currently selected node is kept through all modes and can be always
+  "clicked on"
+Moreover:
+- widely configurable
+- switchable between two sets of colors for hinting labels and element nodes to
+  adapt to given web page layouts
+
+Configuration
+-------------
+There is a detailed "user configuration section" at the beginning of the
+script. You can change:
+- Collateral Sequences
+  Letters and/or numbers and their sequence from which the hinting labels will
+  be constructed.
+- Key to simulate a Mouse Click
+  Pressing this key on the selected label will perform the equivalent of a mouse
+  click on this element on the page.
+- Hinting label Display
+  Several ways how the hinting labels will be constructed and displayed (size,
+  colors, etc.)
+- Navigatable Elements Display
+  Ditto for the element link labels to navigate back and forth or search.
+- Navigation mode switches
+  Defines the command characters with which you interact with JumNav.
+
+Default command keys
+--------------------
+"f" and "F" in jumanji activate the JumNav follower script as usual.
+
+In JumNav:
+"#"	toggles between hinting and link navigation mode
+
+When in navigation mode:
+"n"	selects the next link in sequence
+"p"	selects the previous link in sequence
+"/"	enables the word match (element search) mode
+"="	disables the word match mode
+
+With word match mode enabled:
+"#"	toggles between navigation and word match mode
+"n","p"	in navigation mode work as usual but are restricted to the elements
+	group matching the regular pattern entered in word match mode.
+
+In any mode:
+","	simulates a mouse click on the currently selected element.
+
+Other Remarks
+-------------
+- The navigation links are displayed in different colors depending on the
+  current mode. The currently selected link is displayed in another color so it
+  stands out.
+
+- Usually the viewport will adjust to the currently selected link. There are,
+  however, some complicated structured pages where this automatic viewport
+  positioning fails. Navigating with "n" or "p" usually helps in those cases.
+
+- There are two sets of colors for the hinting labels/element nodes display to
+  adapt to different page layouts. "+" in navigation mode (not in word match)
+  toggles between these.
+
+- On some pages the hinting labels/element nodes appear displaced. "-" in
+  navigation mode allows to toggle to another ("raw") postioning algorithm 
+  which in many cases helps. On some such pages toggling in raw mode and out
+  again appears to "snap in" the elements to their correct positons.
+ 
